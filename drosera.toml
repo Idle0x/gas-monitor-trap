@@ -1,0 +1,16 @@
+ethereum_rpc = "https://rpc.ankr.com/eth/1636bb0d4feb1f2ecdfa991593f632ec219a6832d6cbdd6fc616719ef159c11e"
+drosera_rpc = "https://relay.ethereum.drosera.io/"
+
+[traps]
+
+[traps.gas_monitor_trap]
+path = "out/GasMonitorTrap.sol/GasMonitorTrap.json"
+response_contract = "0xB400bC781d57aa26592940b31f5967bA015a7df6"
+response_function = "respond(bytes[])"
+cooldown_period_blocks = 50
+min_number_of_operators = 1
+max_number_of_operators = 2
+block_sample_size = 5
+private_trap = true
+whitelist = ["0xcF75BeA7A11Eb0A764dC85DEf2F36c3ed826aE59"]
+address = "0x1521a1C75cdeDC18d325ef430505d326A0646354"
