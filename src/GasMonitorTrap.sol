@@ -3,33 +3,31 @@ pragma solidity ^0.8.20;
 
 import {ITrap} from "drosera-contracts/interfaces/ITrap.sol";
 
-contract GasMonitorTrap is ITrap {
-    // We want to trigger if gas is CHEAP (e.g., below 20 gwei)
-    // 20 gwei = 20000000000 wei
-    uint256 public constant TARGET_GAS = 20 gwei;
+contract VoidCatalystTrap is ITrap {
+    // 20 gwei trigger
+    uint256 public constant VOID_THRESHOLD = 20 gwei;
 
     function collect() external view returns (bytes memory) {
-        // Collect the current block's base fee
         return abi.encode(block.basefee);
     }
 
     function shouldRespond(bytes[] calldata data) external pure returns (bool, bytes memory) {
-        // Decode the collected gas price
-        uint256 currentGas = abi.decode(data[0], (uint256));
+        // SAFETY 1: Check if data exists
+        if (data.length == 0) return (false, bytes(""));
+        
+        // SAFETY 2: Check if the latest sample is valid
+        // We only care about the freshest data (index 0 usually, but let's check the last one added)
+        // Drosera usually sends [oldest ... newest]. Let's check the newest.
+        bytes memory latestData = data[data.length - 1];
+        if (latestData.length == 0) return (false, bytes(""));
 
-        // Trigger if current gas is LOWER than our target (Cheap Gas Alert!)
-        if (currentGas < TARGET_GAS) {
+        uint256 currentGas = abi.decode(latestData, (uint256));
+
+        if (currentGas < VOID_THRESHOLD) {
+            // MATCH: Return true and pass the gas price to the responder
             return (true, abi.encode(currentGas));
         }
 
         return (false, bytes(""));
-    }
-
-    // This function will emit a log on-chain when gas is cheap
-    event LowGasDetected(uint256 gasPrice);
-
-    function respond(bytes[] calldata data) external {
-        uint256 currentGas = abi.decode(data[0], (uint256));
-        emit LowGasDetected(currentGas);
     }
 }
