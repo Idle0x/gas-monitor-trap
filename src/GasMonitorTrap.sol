@@ -14,17 +14,16 @@ contract VoidCatalystTrap is ITrap {
     function shouldRespond(bytes[] calldata data) external pure returns (bool, bytes memory) {
         // SAFETY 1: Check if data exists
         if (data.length == 0) return (false, bytes(""));
-        
-        // SAFETY 2: Check if the latest sample is valid
-        // We only care about the freshest data (index 0 usually, but let's check the last one added)
-        // Drosera usually sends [oldest ... newest]. Let's check the newest.
-        bytes memory latestData = data[data.length - 1];
-        if (latestData.length == 0) return (false, bytes(""));
 
-        uint256 currentGas = abi.decode(latestData, (uint256));
+        // SAFETY 2: Check if the LATEST sample (index 0) is valid
+        if (data[0].length == 0) return (false, bytes(""));
+
+        // DECODE: data[0] is the newest block data
+        uint256 currentGas = abi.decode(data[0], (uint256));
 
         if (currentGas < VOID_THRESHOLD) {
             // MATCH: Return true and pass the gas price to the responder
+            // This matches executeIgnition(uint256)
             return (true, abi.encode(currentGas));
         }
 
