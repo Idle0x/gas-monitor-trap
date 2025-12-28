@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 contract VoidCatalystResponse {
     event VoidDetected(uint256 indexed gasPrice, uint256 timestamp);
 
-    // This signature matches exactly what we will put in the TOML
+    // FIX: Typed argument matches exactly what the trap encodes
     function executeIgnition(uint256 gasPrice) external {
         emit VoidDetected(gasPrice, block.timestamp);
     }
